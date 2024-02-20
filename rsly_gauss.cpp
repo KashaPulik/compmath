@@ -18,8 +18,8 @@ public:
 
     Fraction operator+(const Fraction& other)
     {
-        int new_ratio = NOK(ratio, other.ratio);
         reduction();
+        int new_ratio = NOK(ratio, other.ratio);
         return Fraction(
                 numerator * (new_ratio / ratio)
                         + other.numerator * (new_ratio / other.ratio),
@@ -189,21 +189,11 @@ bool rsly_gauss(Fraction** a, Fraction* x, int n)
             a[k][i] = a[k][i] * c;
         x[k] = x[k] * c;
         for (i = k + 1; i < n; i++) {
-            for (j = k + 1; j < n; j++) {
+            for (j = k + 1; j < n; j++)
                 a[i][j] = a[i][j] - a[i][k] * a[k][j];
-                if(a[i][j].numerator == 0) {
-                    std::cout << "Система не имеет решений\n";
-                    return -1;
-                }
-            }
             x[i] = x[i] - a[i][k] * x[k];
             a[i][k] = 0;
         }
-        for (int m = 0; m < n; m++)
-            for (int g = 0; g < n; g++)
-                a[m][g].reduction();
-        print_matrix(a, n);
-        std::cout << std::endl;
     }
     //--------------------------
     // Сокращение дробей
@@ -223,24 +213,7 @@ bool rsly_gauss(Fraction** a, Fraction* x, int n)
     for (int m = 0; m < n; m++)
         x[m].reduction();
     return 0;
-    return 0;
 } // rsly_gauss
-
-int check_rsly(Fraction** a)
-{
-    Fraction number;
-    number = a[0][0] * a[1][1] * a[2][2] + a[0][1] * a[1][2] * a[2][0]
-            + a[1][0] * a[0][2] * a[2][1] - a[0][2] * a[1][1] * a[2][0]
-            - a[1][0] * a[0][1] * a[2][2] - a[0][0] * a[1][2] * a[2][1];
-    if (number.numerator != 0)
-        return 0;
-    return 1;
-}
-
-int matrix_rang(Fraction** a)
-{
-    
-}
 
 int file_input_rsly_gauss(char* filename)
 {
@@ -283,7 +256,6 @@ int file_input_rsly_gauss(char* filename)
 
 int main(int argc, char* argv[])
 {
-    if (argc < 2) {
     if (argc < 2) {
         std::cerr << "Need more arguments\n";
         return 1;
