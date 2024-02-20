@@ -52,6 +52,14 @@ public:
                 > other.numerator * (nok / other.ratio);
     }
 
+    bool operator!=(const Fraction& other)
+    {
+        reduction();
+        int nok = NOK(ratio, other.ratio);
+        return numerator * (nok / ratio)
+                != other.numerator * (nok / other.ratio);
+    }
+
     Fraction abs()
     {
         return Fraction(
@@ -94,18 +102,50 @@ private:
     }
 };
 
-void print_matrix(Fraction** matrix, int n)
+void print_slau(Fraction** a, Fraction* x, int n)
 {
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
-            std::cout << matrix[i][j].numerator << "/" << matrix[i][j].ratio
-                      << " ";
+            if (a[i][j].ratio > 1)
+                std::cout << "(";
+            std::cout << abs(a[i][j].numerator);
+            if (a[i][j].ratio > 1) {
+                std::cout << "/" << a[i][j].ratio;
+                std::cout << ")";
+            }
+            std::cout << "*x" << j + 1;
+            if (a[i][j].numerator >= 0 && j < n - 1)
+                std::cout << " + ";
+            if (a[i][j].numerator < 0 && j < n - 1)
+                std::cout << " - ";
         }
-        std::cout << "\n";
+        std::cout << " = " << x[i].numerator;
+        if (x[i].ratio > 1)
+            std::cout << "/" << x[i].ratio;
+        std::cout << std::endl;
     }
+    std::cout << std::endl;
 }
 
-int rsly_gauss(Fraction** a, Fraction* x, int n)
+bool check_line(Fraction* a, Fraction x, int n)
+{
+    for (int i = 0; i < n; i++)
+        if (a[i].numerator != 0)
+            return 0;
+    if (x.numerator != 0)
+        return 0;
+    return 1;
+}
+
+bool check_lack(Fraction* a, int n)
+{
+    for (int i = 0; i < n; i++)
+        if (a[i].numerator != 0)
+            return 0;
+    return 1;
+}
+
+bool rsly_gauss(Fraction** a, Fraction* x, int n)
 {
     long long imax, i, j, k;
     Fraction amax, c;
@@ -113,6 +153,16 @@ int rsly_gauss(Fraction** a, Fraction* x, int n)
     // Пpямой ход
     //------------------------
     for (k = 0; k < n; k++) {
+        if (check_line(a[k], x[k], n)) {
+            std::cout
+                    << "There are infinitely many solutions in this equation\n";
+            return 1;
+        }
+        if (check_lack(a[k], n)) {
+            std::cout << "There are no solutions in this equation\n";
+            return 1;
+        }
+        print_slau(a, x, n);
         //-------------------------------------------------------
         // Поиcк макcимального элемента по абcолютной величине
         //-------------------------------------------------------
@@ -147,6 +197,7 @@ int rsly_gauss(Fraction** a, Fraction* x, int n)
                 }
             }
             x[i] = x[i] - a[i][k] * x[k];
+            a[i][k] = 0;
         }
         for (int m = 0; m < n; m++)
             for (int g = 0; g < n; g++)
@@ -159,6 +210,7 @@ int rsly_gauss(Fraction** a, Fraction* x, int n)
     //--------------------------
     for (int m = 0; m < n; m++)
         x[m].reduction();
+    print_slau(a, x, n);
     //--------------------------
     // Обpатный ход
     //--------------------------
@@ -170,6 +222,7 @@ int rsly_gauss(Fraction** a, Fraction* x, int n)
     //--------------------------
     for (int m = 0; m < n; m++)
         x[m].reduction();
+    return 0;
     return 0;
 } // rsly_gauss
 
@@ -211,13 +264,8 @@ int file_input_rsly_gauss(char* filename)
             a[i][j] = tmp;
         }
     }
-    // if (check_rsly(a)) {
-    //     std::cerr << "Invalid rsly\n";
-    //     return -1;
-    // }
-    // print_matrix(a, n);
-    if(rsly_gauss(a, x, n))
-        return -1;
+    if (rsly_gauss(a, x, n))
+        return 1;
     for (int i = 0; i < n; i++) {
         std::cout << "x" << i + 1 << " = " << x[i].numerator;
         if (x[i].ratio > 1)
@@ -235,6 +283,7 @@ int file_input_rsly_gauss(char* filename)
 
 int main(int argc, char* argv[])
 {
+    if (argc < 2) {
     if (argc < 2) {
         std::cerr << "Need more arguments\n";
         return 1;
