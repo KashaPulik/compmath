@@ -1,6 +1,8 @@
+#include <algorithm>
 #include <cmath>
 #include <fstream>
 #include <iostream>
+#include <vector>
 
 void print_slau(double** a, double* x, int n)
 {
@@ -77,13 +79,80 @@ double norma(double* x, int n)
     return max;
 }
 
+int check_line(double* a, int n, int index)
+{
+    int sum = 0;
+    for (int i = 0; i < n; i++) {
+        sum += fabs(a[i]);
+    }
+    sum -= fabs(a[index]);
+    if (sum > fabs(a[index]))
+        return -1;
+
+    return 0;
+}
+
+std::vector<int> check_lines(double** a, int n)
+{
+    std::vector<int> indexes;
+    for (int i = 0; i < n; i++) {
+        if (check_line(a[i], n, i))
+            indexes.push_back(i);
+    }
+    return indexes;
+}
+
+bool is_there(std::vector<int> a, int b)
+{
+    for (auto& i : a) {
+        if (i == b)
+            return 1;
+    }
+    return 0;
+}
+
+void swap_lines(double** a, double* x, int n)
+{
+    std::vector<int> indexes = check_lines(a, n);
+
+    double max_num;
+    int max_index = 0;
+    int j, i;
+    for (i = 0; i < n; i++) {
+        max_index = i;
+        max_num = fabs(a[i][i]);
+        if (!is_there(indexes, i))
+            continue;
+        for (j = i; j < n; j++) {
+            if (!is_there(indexes, j))
+                continue;
+            if (fabs(a[j][i]) > max_num) {
+                max_num = fabs(a[j][i]);
+                max_index = j;
+            }
+        }
+        double* tmp = a[max_index];
+        a[max_index] = a[i];
+        a[i] = tmp;
+        double tmp2;
+        tmp2 = x[max_index];
+        x[max_index] = x[i];
+        x[i] = tmp2;
+    }
+}
+
 int MPI(double** a, double* x, int n, double eps, int* n_iterations)
 {
     int tmp_n_iterations = 0;
     double previous[n] = {0};
     double delta = 1000000;
-    if (check_slau(a, n))
+    if (check_slau(a, n)) {
+        swap_lines(a, x, n);
+    }
+    if (check_slau(a, n)) {
+        std::cout << "This doesn't have a solution\n";
         return -1;
+    }
     divide_slau(a, x, n);
     convert_slau(a, x, n);
     while (delta > eps) {
