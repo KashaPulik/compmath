@@ -1,11 +1,5 @@
-#include <algorithm>
 #include <cmath>
-#include <cstdlib>
-#include <ctime>
-#include <fstream>
 #include <iostream>
-#include <string>
-#include <vector>
 
 long double f(long double x)
 {
@@ -14,9 +8,8 @@ long double f(long double x)
 
 long double stef_method(long double a, long double b, long double eps)
 {
-    srand(time(0));
     long double x0 = (a + b) / 2;
-    long double x1 = x0 - (f(x0) / (f(x0 + f(x0)) - f(x0))) * f(x0);
+    long double x1 = x0 - (f(x0) * f(x0)) / (f(x0 + f(x0)) - f(x0));
     int n = 1;
     while (fabs(x1 - x0) > eps) {
         n++;
