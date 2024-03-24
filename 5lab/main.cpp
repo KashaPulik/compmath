@@ -6,21 +6,20 @@ using namespace std;
 double f(double x)
 {
     return exp(-x * x);
-    // return x * x;
 }
 
-double integral(double a, double b, int n)
+double integral(double a, double b, unsigned long long n)
 {
     double h = (b - a) / n;
     double s = 0;
-    for (int i = 1; i <= n; i++)
+    for (unsigned long long i = 1; i <= n; i++)
         s += f(a + i * h);
     return s * h;
 }
 
-pair<double, int> eps_integral(double a, double b, double eps)
+pair<double, unsigned long long> eps_integral(double a, double b, double eps)
 {
-    int n = 100;
+    unsigned long long n = 100;
     double s1 = integral(a, b, n);
     n *= 2;
     double s2 = integral(a, b, n);
